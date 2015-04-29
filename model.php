@@ -368,6 +368,28 @@ EOT;
 
     }
 
+    public function UseCase_ViewMedicalRecord($PatientID){
+        //this function will retrieve an array
+        $queryString=<<<EOT
+SELECT * FROM MedicalRecord
+WHERE MedicalRecord.PatientID=$PatientID;
+EOT;
+        $this->connectToDB();
+        $result = $this->conn->query($queryString);
+        if(!$result) {
+            print "ERROR: No medical records";
+            $this->ViewStates['ViewMedicalRecord'] = 'There area no medical records.';
+            $this->Attributes['opState'] = 'FailedViewMedicalRecord';
+            return false;
+
+        }else{
+            $this->ViewStates['ViewMedicalRecord'] = 'The medical record of patient: ';
+            $this->Attributes['opState'] = 'PassedViewMedicalRecord';
+            return true;
+        }
+
+    }
+
     public function getAllUserAttributesFromDB(){
         $this->connectToDB();
 
