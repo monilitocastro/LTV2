@@ -10,6 +10,9 @@ class Model
     public $AttributesForCookiesSave;
 
     /**
+    public $dataSignUpNewUser;
+    public $dataScheduleAppointment;
+    public $dataCancelAppointment;
      * The following public variables are data stores for the use case methods.
      * A use case method can have a dedicated public variable.
      * The types are all different and not all use cases will have one.
@@ -17,9 +20,6 @@ class Model
      */
     public $dataAuthenticate;
     //public $dataLogout; //There shouldn't be a need for this.
-    public $dataSignUpNewUser;
-    public $dataScheduleAppointment;
-    public $dataCancelAppointment;
     public $dataPrescribeMedication;
     public $dataWritePhysiciansExam;
     public $dataCreateDisease;
@@ -70,7 +70,7 @@ class Model
 
     private function getAllCookies(){
         foreach ($_COOKIE as $key=>$val)
-        {
+        { 
             $this->Attributes[$key] = $val;
         }
     }
