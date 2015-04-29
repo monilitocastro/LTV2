@@ -269,7 +269,7 @@ EOT;
             foreach($row as $key => $value){
                 $this->dataViewAppointments[$key] = $value;
             }
-            $this->ViewState['ViewAppointments'] = "Canceling appointment for physician.";
+            $this->ViewState['ViewAppointments'] = "Viewing appointment for physician.";
             $this->Attributes['opState']="PassedViewAppointments";
 
         }else{
@@ -334,7 +334,7 @@ EOT;
 CALL create_disease_thread($patient_id , $empl_id , $symptom_id , $treatment_id ,$description  );
 EOT;
         $result = $this->conn->query($queryString);
-        if(!$this->conn->query($queryString)){
+        if(!$result){
             print "Errormessage: " . $this->conn->error;
             $this->closeDB();
             $this->ViewStates['CreateDisease'] = 'Unable to insert symptom data.';
@@ -376,18 +376,42 @@ WHERE MedicalRecord.PatientID=$PatientID;
 EOT;
         $this->connectToDB();
         $result = $this->conn->query($queryString);
-        if(!$result) {
-            print "ERROR: No medical records";
-            $this->ViewStates['ViewMedicalRecord'] = 'There area no medical records.';
-            $this->Attributes['opState'] = 'FailedViewMedicalRecord';
-            return false;
+        $this->closeDB();
+        if($result->num_rows > 0){
+            $row = $result->fetch_assoc();
+            foreach($row as $key => $value){
+                $this->dataViewAppointments[$key] = $value;
+            }
+            $this->ViewState['ViewAppointments'] = "Canceling appointment for physician.";
+            $this->Attributes['opState']="PassedViewAppointments";
 
         }else{
-            $this->ViewStates['ViewMedicalRecord'] = 'The medical record of patient: ';
-            $this->Attributes['opState'] = 'PassedViewMedicalRecord';
-            return true;
+            print "ERROR: model->UseCase_ViewAppointments";
+            $ViewState['ViewAppointment'] ="Error: Unable to view appointments";
+            $this->Attributes['opState']="FailedViewAppointments";
+            return false;
         }
+        return true;
 
+    }
+
+public function UseCase_MakePayment( $amount, $patient_ID ){
+        //create_disease_thread(IN patient_id INT, IN empl_id INT, IN symptom_id INT, IN treatment_id INT, IN description TEXT)
+        $queryString=<<<EOT
+CALL make_payment($amount, $patient_ID);
+EOT;
+        $result = $this->conn->query($queryString);
+        if(!$this->conn->query($queryString)){
+            print "Errormessage: " . $this->conn->error;
+            $this->closeDB();
+            $this->ViewStates['MakePayment'] = 'Unable to insert payment data.';
+            $this->Attributes['opState']="FailedMakePayment";
+            return false;
+        }
+        $this->closeDB();
+        $this->ViewStates['MakePayment'] = 'The payment has been entered. <br/>&nbsp;<br/>';
+        $this->Attributes['opState']="PassedMakePayment";
+        return true;
     }
 
     public function getAllUserAttributesFromDB(){
