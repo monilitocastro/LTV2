@@ -3,18 +3,45 @@ class Controller
 {
     private $model;
 
-    /**
-     * This is the singular most important part of controller.php. It is the place where the logic starts.
-     * It should be called from index.php after the Controller Class has been made.
-     * It starts the decision making process.
-     * Using $this->model->Attributes['opState'] it finds out where it can go next.
-     */
-    public function startTheLogic(){
-        $opState = $this->model->Attributes['opState'];
-        if($opState=='Initial'){
-
-        }elseif($opState=='Initial'){}
+    public function Initial(){
+        
     }
+    public function FailedAuthenticate(){}
+    public function PassedAuthenticate(){}
+    public function FailedSignUpNewUser(){}
+    public function PassedSignUpNewUser(){}
+    public function Logout(){}
+    public function FailedUpdateUserInformation(){}
+    public function PassedUpdateUserInformation(){}
+    public function FailedViewAccountBalance(){}
+    public function PassedViewAccountBalance(){}
+    public function FailedViewPrescription(){}
+    public function PassedViewPrescription(){}
+    public function FailedScheduleAppointment(){}
+    public function PassedScheduleAppointment(){}
+    public function FailedCancelAppointment(){}
+    public function PassedCancelAppointment(){}
+    public function PassedViewAppointment(){}
+    public function FailedViewAppointment(){}
+    public function FailedPrescribeMedication(){}
+    public function PassedPrescribeMedication(){}
+    public function FailedWritePhysiciansExam(){}
+    public function PassedWritePhysiciansExam(){}
+    public function FailedWriteNursesNotes(){}
+    public function PassedWriteNursesNotes(){}
+    public function FailedCreateDisease(){}
+    public function FailedModifyDisease(){}
+    public function PassedModifyDisease(){}
+    public function PassedViewMedicalRecord(){}
+    public function FailedViewMedicalRecord(){}
+    public function FailedMakePayment(){}
+    public function PassedMakePayment(){}
+    public function PassedViewLabHistory(){}
+    public function FailedViewLabHistory(){}
+    public function PassedScheduleLabTest(){}
+    public function FailedScheduleLabTest(){}
+    public function PassedCreateEmergencyFirstContact(){}
+    public function FailedCreateEmergencyFirstContact(){}
 
     public function UserTypeIsNowKnown(){
         if(isset($this->model->Attributes['UserType'])) {

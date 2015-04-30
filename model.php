@@ -308,8 +308,31 @@ EOT;
 
 
     }
-
     public function UseCase_WritePhysiciansExam($freeform, $empl_id, $patient_id){
+        //write_exam_note(IN note TEXT, IN empl_id INT, IN patient_id INT)
+        $result = $this->private_WriteNotes($freeform, $empl_id, $patient_id);
+        if($result==true){
+            $this->ViewStates['WritePhysiciansExam'] = 'This note is now in the database: <br/>&nbsp;<br/>'.$freeform;
+            $this->Attributes['opState']="PassedWritePhysiciansExam";
+        }else{
+            $this->ViewStates['WritePhysiciansExam'] = 'Unable to insert exam notes.';
+            $this->Attributes['opState']="FailedWritePhysiciansExam";
+        }
+    }
+
+    public function UseCase_WriteNursesNotes($freeform, $empl_id, $patient_id){
+        //write_exam_note(IN note TEXT, IN empl_id INT, IN patient_id INT)
+        $result = $this->private_WriteNotes($freeform, $empl_id, $patient_id);
+        if($result==true){
+            $this->ViewStates['WritePhysiciansExam'] = 'This note is now in the database: <br/>&nbsp;<br/>'.$freeform;
+            $this->Attributes['opState']="PassedWriteNursesNotes";
+        }else{
+            $this->ViewStates['WritePhysiciansExam'] = 'Unable to insert exam notes.';
+            $this->Attributes['opState']="FailedWriteNursesNotes";
+        }
+    }
+
+    private function private_WriteNotes($freeform, $empl_id, $patient_id){
         //write_exam_note(IN note TEXT, IN empl_id INT, IN patient_id INT)
         $queryString =<<<EOT
 CALL write_exam_note( $freeform ,  $empl_id ,  $patient_id );
@@ -318,13 +341,9 @@ EOT;
         if(!$this->conn->query($queryString)){
             print "Errormessage: " . $this->conn->error;
             $this->closeDB();
-            $this->ViewStates['WritePhysiciansExam'] = 'Unable to insert exam notes.';
-            $this->Attributes['opState']="FailedWritePhysiciansExam";
             return false;
         }
         $this->closeDB();
-        $this->ViewStates['WritePhysiciansExam'] = 'This note is now in the database: <br/>&nbsp;<br/>'.$freeform;
-        $this->Attributes['opState']="PassedWritePhysiciansExam";
         return true;
     }
 
@@ -358,12 +377,12 @@ EOT;
             print "Errormessage: " . $this->conn->error;
             $this->closeDB();
             $this->ViewStates['CreateDisease'] = 'Unable to insert symptom data.';
-            $this->Attributes['opState']="FailedCreateDisease";
+            $this->Attributes['opState']="FailedModifyDisease";
             return false;
         }
         $this->closeDB();
         $this->ViewStates['CreateDisease'] = 'This symptom is now in the database: <br/>&nbsp;<br/>';
-        $this->Attributes['opState']="PassedCreateDisease";
+        $this->Attributes['opState']="PassedModifyDisease";
         return true;
 
     }
@@ -383,12 +402,12 @@ EOT;
                 $this->dataViewAppointments[$key] = $value;
             }
             $this->ViewState['ViewAppointments'] = "Canceling appointment for physician.";
-            $this->Attributes['opState']="PassedViewAppointments";
+            $this->Attributes['opState']="PassedViewMedicalRecord";
 
         }else{
             print "ERROR: model->UseCase_ViewAppointments";
             $ViewState['ViewAppointment'] ="Error: Unable to view appointments";
-            $this->Attributes['opState']="FailedViewAppointments";
+            $this->Attributes['opState']="FailedViewMedicalRecord";
             return false;
         }
         return true;
@@ -475,7 +494,7 @@ EOT;
         }
     }
 
-    public function UseCase_Create( $freeform, $PhysicianID, $patient_ID, $time ){
+    public function UseCase_ScheduleLabTest( $freeform, $PhysicianID, $patient_ID, $time ){
         // similar to create specialist referral. First checks to see if it is a technician. if so it calls schedule lab test
         $this->connectToDB();
 
@@ -485,7 +504,6 @@ EOT;
         $this->closeDB();
         if($result->num_rows == 1){
             $this->closeDB();
-            //$row = $result->fetch_assoc();
             $row = $result->fetch_assoc();
             foreach($row as $key => $value){
                 $this->Attributes[$key] = $value;
@@ -496,6 +514,7 @@ EOT;
                 //call schedule patient
                 //private_ScheduleLabTest($patient_id , $physician_id , $time , $description)
                 return $this->UseCase_ScheduleAppointment($freeform, $PhysicianID,$patient_ID,$time);
+                return $this->private_ScheduleLabTest($patient_ID , $PhysicianID , $time , $freeform);
             }else{
                 //The DB should be confirm that it is a technician. If not then expected value is not set up in HTML code
                 return false;
@@ -503,10 +522,15 @@ EOT;
 
         }else{
 
-            print "ERROR: model->CreateSpecialistReferral"; 
+            print "ERROR: model->CreateSpecialistReferral";
             $this->dataCreateSpecialistReferral="ERROR";
             return false;
         }
+    }
+
+    public function UseCase_CreateEmergencyFirstContact(){
+        //need to implement
+        throw new Exception("Unimplemented method CreateEmergencyFirstConteact");
     }
 
     private function private_ScheduleLabTest($patient_id , $physician_id , $time , $description){
