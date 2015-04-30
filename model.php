@@ -400,7 +400,6 @@ public function UseCase_MakePayment( $amount, $patient_ID ){
         $queryString=<<<EOT
 CALL make_payment($amount, $patient_ID);
 EOT;
-        $result = $this->conn->query($queryString);
         if(!$this->conn->query($queryString)){
             print "Errormessage: " . $this->conn->error;
             $this->closeDB();
@@ -413,6 +412,120 @@ EOT;
         $this->Attributes['opState']="PassedMakePayment";
         return true;
     }
+
+
+    public function UseCase_ViewLabHistory($PatientID){
+        //this function will retrieve an array
+        $queryString=<<<EOT
+SELECT User.Name, PhysicianUser.Name ,Description.FreeFormText
+FROM User AS PatientUser, User AS PhysicianUser, Appointment, Description
+WHERE Appointment.PatientID='$PatientID' AND PatientUser.UserID=Appointment.PatientID AND Appointment.DescriptionID=Description.DescriptionID
+AND PhysicianUser.UserID=Appointment.PhysicianID AND PhysicianUser.UserType='Technician';
+EOT;
+        $this->connectToDB();
+        $result = $this->conn->query($queryString);
+        $this->closeDB();
+        if($result->num_rows > 0){
+            $row = $result->fetch_assoc();
+            foreach($row as $key => $value){
+                $this->dataViewLabHistory[$key] = $value;
+            }
+            $this->ViewState['ViewLabHistory'] = "Lab test history: ";
+            $this->Attributes['opState']="PassedViewLabHistory";
+
+        }else{
+            print "ERROR: model->UseCase_ViewAppointments";
+            $ViewState['ViewLabHistory'] ="Error: Unable to view lab test appointments and history";
+            $this->Attributes['opState']="FailedViewLabHistory";
+            return false;
+        }
+        return true;
+    }
+
+    public function UseCase_CreateSpecialistReferral( $freeform, $PhysicianID, $patient_ID, $time ){
+        //first call DB to find out if employee with physicianID is a technician If so then use method schedule appointment
+        $this->connectToDB();
+
+        $queryString = "SELECT UserType FROM User WHERE UserID='" .$PhysicianID."';";
+
+        $result = $this->conn->query($queryString);
+        $this->closeDB();
+        if($result->num_rows == 1){
+            $this->closeDB();
+            //$row = $result->fetch_assoc();
+            $row = $result->fetch_assoc();
+            foreach($row as $key => $value){
+                $this->Attributes[$key] = $value;
+            }
+
+
+            if($this->Attributes['UserType']=='Technician'){
+                //call schedule patient
+                return $this->UseCase_ScheduleAppointment($freeform, $PhysicianID,$patient_ID,$time);
+            }else{
+                //The DB should be confirm that it is a technician. If not then expected value is not set up in HTML code
+                return false;
+            }
+
+        }else{
+
+            print "ERROR: model->CreateSpecialistReferral";
+            $this->dataCreateSpecialistReferral="ERROR";
+            return false;
+        }
+    }
+
+    public function UseCase_Create( $freeform, $PhysicianID, $patient_ID, $time ){
+        // similar to create specialist referral. First checks to see if it is a technician. if so it calls schedule lab test
+        $this->connectToDB();
+
+        $queryString = "SELECT UserType FROM User WHERE UserID='" .$PhysicianID."';";
+
+        $result = $this->conn->query($queryString);
+        $this->closeDB();
+        if($result->num_rows == 1){
+            $this->closeDB();
+            //$row = $result->fetch_assoc();
+            $row = $result->fetch_assoc();
+            foreach($row as $key => $value){
+                $this->Attributes[$key] = $value;
+            }
+
+
+            if($this->Attributes['UserType']=='Technician'){
+                //call schedule patient
+                //private_ScheduleLabTest($patient_id , $physician_id , $time , $description)
+                return $this->UseCase_ScheduleAppointment($freeform, $PhysicianID,$patient_ID,$time);
+            }else{
+                //The DB should be confirm that it is a technician. If not then expected value is not set up in HTML code
+                return false;
+            }
+
+        }else{
+
+            print "ERROR: model->CreateSpecialistReferral"; 
+            $this->dataCreateSpecialistReferral="ERROR";
+            return false;
+        }
+    }
+
+    private function private_ScheduleLabTest($patient_id , $physician_id , $time , $description){
+        $queryString=<<<EOT
+CALL schedule_lab_test($patient_id , $physician_id , $time , $description);
+EOT;
+        if(!$this->conn->query($queryString)){
+            print "Errormessage: " . $this->conn->error;
+            $this->closeDB();
+            $this->ViewStates['ScheduleLabTest'] = 'Unable to insert lab test into schedule.';
+            $this->Attributes['opState']="FailedScheduleLabTest";
+            return false;
+        }
+        $this->closeDB();
+        $this->ViewStates['MakeLabTest'] = 'The Lab test has been scheduled';
+        $this->Attributes['opState']="PassedScheduleLabTest";
+        return true;
+    }
+
 
     public function getAllUserAttributesFromDB(){
         $this->connectToDB();
