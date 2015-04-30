@@ -1,7 +1,7 @@
 <?php
 class Model
 {
-    public $attributes;
+    public $attributes;                 //this member holds the permissions for UserType
 
     public $servername;
     private $conn;
@@ -82,7 +82,7 @@ class Model
         }
     }
     private function getAllGET(){
-        foreach ($_POST as $key=>$val)
+        foreach ($_GET as $key=>$val)
         {
             $this->Attributes[$key] = $val;
         }
@@ -164,13 +164,14 @@ EOT;
     public function UseCase_ViewAccountBalance(){
         $resultString = "";
         $this->connectToDB();
+        $PatientID = $this->Attributes['PatientID'];
         $queryString = <<<EOT
-SELECT Balance FROM Account NATURAL JOIN User WHERE UserID='$this->PatientID';
+SELECT Balance FROM Account NATURAL JOIN User WHERE UserID='$PatientID';
 EOT;
         $resultString="";
         $Balance = "";
         $result = $this->conn->query($queryString);
-        if(!result){
+        if(!$result){
             $this->Attributes['opState']="FailedViewAccountBalance";
             $this->ViewState['ViewAccountBalance'] = 'No balance.';
             $this->dataViewAccountBalance = 'ERROR';
@@ -201,7 +202,7 @@ EOT;
         $result = $this->conn->query($queryString);
         $this->closeDB();
 
-        if(!result){
+        if(!$result){
             $this->Attributes['opState']="FailedViewPrescription";
             $this->ViewState['ViewAccountBalance'] = 'No Prescription';
             print "ERROR: null result in UseCase_ViewPrescription";
@@ -364,7 +365,6 @@ EOT;
         $this->ViewStates['CreateDisease'] = 'This symptom is now in the database: <br/>&nbsp;<br/>';
         $this->Attributes['opState']="PassedCreateDisease";
         return true;
-
     }
 
     public function UseCase_ModifyDisease($patient_id, $empl_id,$symptom_id,$treatment_id,$description){
@@ -387,8 +387,9 @@ EOT;
 
     }
 
-    public function UseCase_ViewMedicalRecord($PatientID){
+    public function UseCase_ViewMedicalRecord(){
         //this function will retrieve an array
+        $PatientID=$this->Attributes['PatientID'];
         $queryString=<<<EOT
 SELECT * FROM MedicalRecord
 WHERE MedicalRecord.PatientID=$PatientID;
@@ -653,10 +654,9 @@ EOT;
      */
 
     function __construct($ctype="Unknown"){
-        $this->PatientName = "_unknown";
+        $this->Attributes['PatientName'] = "_unknown";
         $this->Attributes['opState'] = "Initial";        //Stands for opState. For every screen place unique state here.
         $this->define($ctype);
-        $this->UserID = $this->fromCookie("UserID");
         $this->attributesForCookiesSave = array(            //Used by SaveSelectedCookies method
             'UserID',
             'UserType',
