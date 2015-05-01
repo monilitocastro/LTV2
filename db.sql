@@ -56,10 +56,10 @@ CREATE TABLE Appointment (
 );
 
 CREATE TABLE Symptom (
-  SymptomID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  SymptomID INT NOT NULL A
+  UTO_INCREMENT PRIMARY KEY,
   Name VARCHAR(255)
 );
-
 CREATE TABLE Treatment (
   TreatmentID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   Name VARCHAR(255),
@@ -124,9 +124,9 @@ CREATE PROCEDURE create_disease_thread(IN patient_id INT, IN empl_id INT, IN sym
 BEGIN
   IF description IS NOT NULL THEN
     INSERT INTO Description (FreeFormText) VALUES (description);
-    INSERT INTO MedicalRecord (EmplID, PatientID, SymptID, Trtmnt_ID, DescriptionID) VALUES (empl_id, patient_id, symptom_id, treatment_id, LAST_INSERT_ID());
+    INSERT INTO MedicalRecord (EmplID, PatientID, SymptID, Trtmt_ID, DescriptionID) VALUES (empl_id, patient_id, symptom_id, treatment_id, LAST_INSERT_ID());
   ELSE
-    INSERT INTO MedicalRecord (EmplID, PatientID, SymptID, Trtmnt_ID) VALUES (empl_id, patient_id, symptom_id, treatment_id);
+    INSERT INTO MedicalRecord (EmplID, PatientID, SymptID, Trtmt_ID) VALUES (empl_id, patient_id, symptom_id, treatment_id);
   END IF;
 END//
 

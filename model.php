@@ -100,10 +100,10 @@ class Model
         }
 
         if($this->Attributes['UserID'] =='ERROR'){
-            $this->ViewStates['PassFailAuthenticate'] = "Sorry wrong username password combination.";
+            $this->ViewStates['Authenticate'] = "Sorry wrong username password combination.";
             return false;
         }else{
-            $this->ViewStates['PassFailAuthenticate'] = "Welcome to LifeThread";
+            $this->ViewStates['Authenticate'] = "Welcome to LifeThread";
         }
         $this->toCookie("UserID",$this->UserAttributes['UserID'] );
         $this->getAllUserAttributesFromDB();
@@ -115,7 +115,7 @@ class Model
         //sign up new user method
         $this->connectToDB();
         $queryString =<<<EOT
-CALL sign_up_patient( $Name ,  $Username ,  $Password , $Address );
+CALL sign_up_patient( '$Name' ,  '$Username' ,  '$Password' , '$Address' );
 EOT;
 
         if(!$this->conn->query($queryString)){
@@ -143,7 +143,7 @@ EOT;
     public function UseCase_UpdateUserInformation($Name, $Username, $Password, $Address){
         //this will be alot like sign up new user method
         $this->connectToDB();
-        $userid = $this->UserAttributes['UserID'];
+        $userid = $this->Attributes['UserID'];
         $queryString =<<<EOT
 UPDATE User
 SET Name='$Name', Username='$Username', Password='$Password', Address='$Address'
@@ -258,8 +258,8 @@ EOT;
         //This can be used to view upcoming lab tests as well as view appointments with doctors
         $PatientID = $this->Attributes['PatientID'];
         $queryString =<<<EOT
-CALL SELECT * FROM Appointment WHERE Appointment.PatientID=$PatientID
-     ORDER BY Time DESC;
+SELECT * FROM Appointment WHERE Appointment.PatientID=$PatientID
+     ORDER BY Time;
 EOT;
         $this->connectToDB();
         $result = $this->conn->query($queryString);
@@ -274,14 +274,14 @@ EOT;
     }
 
     public function UseCase_PrescribeMedication($drugName, $quantity, $refills, $freeform, $EmplID, $PatientID, $SymptID, $Timestamp){
-        //for queryString first insert into PrescriptionTable then MedicalRecord
+        //for queryString first insert into PrescriptionTable then Description, then MedicalRecord
         $queryString =<<<EOT
 START TRANSACTION;
-INSERT INTO Prescription(Name, Quantity, Refills) VALUES($drugName, $quantity, $refills);
+INSERT INTO Prescription(Name, Quantity, Refills) VALUES('$drugName', $quantity, $refills);
 SET @Rx_ID = LAST_INSERT_ID();
-INSERT INTO Description(FreeFormText) VALUEs($freeform);
+INSERT INTO Description(FreeFormText) VALUES('$freeform');
 SET @Desc_ID = LAST_INSERT_ID();
-INSERT INTO MedicalRecord ( $EmplID,  $PatientID, $SymptID,  $Timestamp, @Desc_ID,  @Rx_ID);
+INSERT INTO MedicalRecord(EmplID, PatientID, SymptID, Timestamp, DescriptionID,  RxNumber) VALUES ( $EmplID,  $PatientID,  $SymptID, NOW(), @Desc_ID,  @Rx_ID);
 COMMIT;
 EOT;
         $this->connectToDB();
@@ -289,20 +289,18 @@ EOT;
         if(!$this->conn->query($queryString)){
             print "Errormessage: " . $this->conn->error;
             $this->closeDB();
-            $this->ViewStates['SignUpNewUser'] = 'Error at attempting to enter prescription into system.';
+            $this->ViewStates['PrescribeMedication'] = 'Error at attempting to enter prescription into system.';
             $this->Attributes['opState']="FailedPrescribeMedication";
             return false;
         }
         $this->closeDB();
-        $this->ViewStates['SignUpNewUser'] = 'The System has prescribed the medicine to the patient.';
+        $this->ViewStates['PrescribeMedication'] = 'The System has prescribed the medicine to the patient.';
         $this->Attributes['opState']="PassedPrescribeMedication";
         return true;
-
-
     }
-    public function UseCase_WritePhysiciansExam($freeform, $empl_id, $patient_id){
+    public function UseCase_WritePhysiciansExam($freeform, $empl_id){
         //write_exam_note(IN note TEXT, IN empl_id INT, IN patient_id INT)
-        $result = $this->private_WriteNotes($freeform, $empl_id, $patient_id);
+        $result = $this->private_WriteNotes($freeform, $empl_id);
         if($result==true){
             $this->ViewStates['WritePhysiciansExam'] = 'This note is now in the database: <br/>&nbsp;<br/>'.$freeform;
             $this->Attributes['opState']="PassedWritePhysiciansExam";
@@ -312,9 +310,9 @@ EOT;
         }
     }
 
-    public function UseCase_WriteNursesNotes($freeform, $empl_id, $patient_id){
+    public function UseCase_WriteNursesNotes($freeform, $empl_id){
         //write_exam_note(IN note TEXT, IN empl_id INT, IN patient_id INT)
-        $result = $this->private_WriteNotes($freeform, $empl_id, $patient_id);
+        $result = $this->private_WriteNotes($freeform, $empl_id);
         if($result==true){
             $this->ViewStates['WritePhysiciansExam'] = 'This note is now in the database: <br/>&nbsp;<br/>'.$freeform;
             $this->Attributes['opState']="PassedWriteNursesNotes";
@@ -324,12 +322,13 @@ EOT;
         }
     }
 
-    private function private_WriteNotes($freeform, $empl_id, $patient_id){
+    private function private_WriteNotes($freeform, $empl_id){
         //write_exam_note(IN note TEXT, IN empl_id INT, IN patient_id INT)
+        $patient_id =  $this->Attributes['PatientID'];
         $queryString =<<<EOT
-CALL write_exam_note( $freeform ,  $empl_id ,  $patient_id );
+CALL write_exam_note( '$freeform' , $empl_id,  $patient_id );
 EOT;
-        $result = $this->conn->query($queryString);
+        $this->connectToDB();
         if(!$this->conn->query($queryString)){
             print "Errormessage: " . $this->conn->error;
             $this->closeDB();
@@ -342,8 +341,9 @@ EOT;
     public function UseCase_CreateDisease($patient_id, $empl_id,$symptom_id,$treatment_id,$description){
         //create_disease_thread(IN patient_id INT, IN empl_id INT, IN symptom_id INT, IN treatment_id INT, IN description TEXT)
         $queryString =<<<EOT
-CALL create_disease_thread($patient_id , $empl_id , $symptom_id , $treatment_id ,$description  );
+CALL create_disease_thread($patient_id , $empl_id , $symptom_id , $treatment_id , '$description'  );
 EOT;
+        $this->connectToDB();
         $result = $this->conn->query($queryString);
         if(!$result){
             print "Errormessage: " . $this->conn->error;
@@ -361,7 +361,7 @@ EOT;
     public function UseCase_ModifyDisease($patient_id, $empl_id,$symptom_id,$treatment_id,$description){
         //create_disease_thread(IN patient_id INT, IN empl_id INT, IN symptom_id INT, IN treatment_id INT, IN description TEXT)
         $queryString =<<<EOT
-CALL create_disease_thread($patient_id , $empl_id , $symptom_id , $treatment_id ,$description  );
+CALL create_disease_thread($patient_id , $empl_id , $symptom_id , $treatment_id ,'$description'  );
 EOT;
         $result = $this->conn->query($queryString);
         if(!$this->conn->query($queryString)){
@@ -529,8 +529,10 @@ EOT;
 
             if($this->Attributes['UserType']=='Patient'){
                 $this->Attributes['PatientName'] = $this->Attributes['Name'];
+                $this->Attributes['PatientID'] = $this->Attributes['UserID'];
             }else{
                 $this->Attributes['PatientName'] = "Please choose a Patient.<br/>";
+                $this->Attributes['PatientID'] = $this->Attributes['UserID'];
             }
 
         }else{
