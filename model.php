@@ -205,7 +205,6 @@ EOT;
         if(!$result){
             $this->Attributes['opState']="FailedViewPrescription";
             $this->ViewState['ViewAccountBalance'] = 'No Prescription';
-            print "ERROR: null result in UseCase_ViewPrescription";
             return false;
         }
         $index = 0;
@@ -223,7 +222,7 @@ EOT;
 
     public function UseCase_ScheduleAppointment($freeform, $workerID, $patientID, $time){
         $queryString =<<<EOT
-CALL schedule_appointment($patientID, $workerID, $time, $freeform);
+CALL schedule_appointment($patientID, $workerID, $time, '$freeform');
 EOT;
         $this->connectToDB();
         $result = $this->conn->query($queryString);
@@ -259,27 +258,19 @@ EOT;
         //This can be used to view upcoming lab tests as well as view appointments with doctors
         $PatientID = $this->Attributes['PatientID'];
         $queryString =<<<EOT
-CALL SELECT * FROM Appointments WHERE Appointment.PatientID=$PatientID
-     ORDER BY Time;
+CALL SELECT * FROM Appointment WHERE Appointment.PatientID=$PatientID
+     ORDER BY Time DESC;
 EOT;
         $this->connectToDB();
         $result = $this->conn->query($queryString);
         $this->closeDB();
-        if($result->num_rows > 0){
-            $row = $result->fetch_assoc();
-            foreach($row as $key => $value){
-                $this->dataViewAppointments[$key] = $value;
-            }
-            $this->ViewState['ViewAppointments'] = "Viewing appointment for physician.";
-            $this->Attributes['opState']="PassedViewAppointments";
 
-        }else{
-            print "ERROR: model->UseCase_ViewAppointments";
-            $ViewState['ViewAppointment'] ="Error: Unable to view appointments";
-            $this->Attributes['opState']="FailedViewAppointments";
-            return false;
+        foreach($result as $key => $value){
+
+            $this->dataViewAppointments[$key] = $value;
+            $this->ViewState['ViewAppointments'] = "Viewing Appointments.";
+            $this->Attributes['opState']="PassedViewAppointments";
         }
-        return true;
     }
 
     public function UseCase_PrescribeMedication($drugName, $quantity, $refills, $freeform, $EmplID, $PatientID, $SymptID, $Timestamp){
@@ -397,22 +388,13 @@ EOT;
         $this->connectToDB();
         $result = $this->conn->query($queryString);
         $this->closeDB();
-        if($result->num_rows > 0){
-            $row = $result->fetch_assoc();
-            foreach($row as $key => $value){
-                $this->dataViewAppointments[$key] = $value;
-            }
-            $this->ViewState['ViewAppointments'] = "Canceling appointment for physician.";
+
+        foreach($result as $key => $value){
+            //print_r($result);
+            $this->dataViewMedicalRecord[$key] = $value;
+            $this->ViewState['ViewMedicalRecord'] = "Viewing Medical Record.";
             $this->Attributes['opState']="PassedViewMedicalRecord";
-
-        }else{
-            print "ERROR: model->UseCase_ViewAppointments";
-            $ViewState['ViewAppointment'] ="Error: Unable to view appointments";
-            $this->Attributes['opState']="FailedViewMedicalRecord";
-            return false;
         }
-        return true;
-
     }
 
 public function UseCase_MakePayment( $amount, $patient_ID ){
@@ -500,10 +482,17 @@ EOT;
 
     public function UseCase_CreateEmergencyFirstContact(){
         //need to implement
-        throw new Exception("Unimplemented method CreateEmergencyFirstConteact");
+        throw new Exception("Unimplemented method CreateEmergencyFirstContact");
     }
 
     public function UseCase_ScheduleLabTest($patient_id , $physician_id , $time , $description){
+
+        /**
+         * The time format for schedule_lab_test is datetime because of Appointment table. The current test files has a none-datetime format.
+         * I try to put datetime format but it seems to reject it. It seems that the only datetime it accepts is the NOW() MySQL function.
+         * Suffice it to say this is only useful some of the time.   MCC
+         */
+
         $queryString=<<<EOT
 CALL schedule_lab_test($patient_id, $physician_id, $time, "$description");
 EOT;
@@ -512,7 +501,7 @@ EOT;
             print "Errormessage: " . $this->conn->error;
             $this->closeDB();
             $this->ViewStates['ScheduleLabTest'] = 'Unable to insert lab test into schedule.';
-            $this->Attributes['opState']="FailedScheduleLabTest";
+            $this->Attributes['opState'] = "FailedScheduleLabTest";
             return false;
         }
         $this->closeDB();
