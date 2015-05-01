@@ -12,6 +12,12 @@ class Controller
     public function PassedAuthenticate(){
         $this->model->showThis = $this->model->messages['PassedAuthenticate'];
     }
+    public function FailedDefinePatient(){
+        $this->model->showThis = $this->model->messages['FailedDefinePatient'];
+    }
+    public function PassedDefinePatient(){
+        $this->model->showThis = $this->model->messages['PassedDefinePatient'];
+    }
     public function FailedSignUpNewUser(){
         $this->model->showThis = $this->model->messages['FailedSignUpNewUser'];
     }

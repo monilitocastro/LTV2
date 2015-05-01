@@ -69,14 +69,18 @@ EOT;
         return $result;
     }
     public function PatientNameView(){
+        //guard against undefined PatientName
+        if(!isset($this->model->Attributes['PatientName'])){
+            print "Undefined PatientName";
+            return "";
+        }
         $result = "";
-        if( isset($this->model->FromCookies['UserType']) && ($this->model->FromCookies['UserType'] != 'Patient')   ){
+        if( isset($this->model->Attributes['UserType']) && ($this->model->Attributes['UserType'] != 'Patient')   ){
             //For everyone else
             $result = $result . "<li><a href=\"index.php?action=DefinePatient\" target=\"_top\">Define Patient</a></li>";
-        }else if($this->model->FromCookies['UserType'] == 'Patient'){
+        }else if($this->model->Attributes['UserType'] == 'Patient'){
             //just return patient name
-            $result = $result . $this->model->PatientName;
-            $this->model->PatientID = $this->model->FromCookies['UserID'];
+            $result = $result . $this->model->Attributes['PatientName'];
         }
         return $result;
     }
@@ -87,15 +91,19 @@ EOT;
         foreach($this->model->attributes as $key => $value){
             if($value==1){
                 $url = str_replace(' ', '', $key);
-                $result = $result . "<li><a href=\"index.php?action=".$url."\" target=\"_top\">".$key."</a></li>";
+                $result = $result . "<li><a href='index.php' onClick='create_cookie('opState', '$url', 1, '/')' target='_top'>".$key."</a></li>";
             }
         }
 
         return $result;
     }
 
+    /**
+     * This function should be the only one called by index.php that is by view.php
+     * @return string
+     */
 
-    public function showTemplate(){
+    public function outputWebPage(){
         $concatString = "<html>". $this->showPreBody() . $this->showBody() . "</html>";
         return $concatString;
     }
@@ -108,7 +116,14 @@ EOT;
          </head>";
     }
     public function showBody(){
-        return "<body><script>" .$this->jsCodeCookie. "</script><div class=\"blended_grid\">". $this->showPageHeader(). $this->showPageLeftMenu(). $this->showPageContent(). $this->showPageFooter() ."</div>" . "</body>";
+        return "<body><script>"
+                .$this->jsCodeCookie
+                . "</script><div class=\"blended_grid\">"
+                . $this->showPageHeader()
+                . $this->showPageLeftMenu()
+                .$this->showPageContent()
+                . $this->showPageFooter()
+                ."</div>" . "</body>";
     }
     public function showPageHeader(){
         return "<div class=\"pageHeader\"><img src=\"logo.png\"></div>";

@@ -20,6 +20,7 @@ class Model
      */
     public $dataAuthenticate;
     //public $dataLogout; //There shouldn't be a need for this.
+    public $dataDefinePatient;
     public $dataPrescribeMedication;
     public $dataWritePhysiciansExam;
     public $dataCreateDisease;
@@ -66,6 +67,17 @@ class Model
         $this->getAllCookies();
         $this->getAllPOST();
         $this->getAllGET();
+
+        //Guard against undefined.
+        if(!isset($this->Attributes['PatientName'])) {
+            $this->Attributes['PatientName'] = 'Unknown';
+        }
+        if(!isset($this->Attributes['UserID'])){
+            $this->Attributes['UserID']='Unknown';
+        }
+        if(!isset($this->Attributes['UserType'])){
+            $this->Attributes['UserType'] == 'Unknown';
+        }
     }
 
     private function getAllCookies(){
@@ -484,6 +496,30 @@ EOT;
         throw new Exception("Unimplemented method CreateEmergencyFirstContact");
     }
 
+    public function UseCase_DefinePatient(){
+        $PatientID = $this->Attributes['PatientID'];
+        $queryString =<<<EOT
+SELECT Name from User WHERE UserID='$PatientID';
+EOT;
+        $this->connectToDB();
+        $result = $this->conn->query($queryString);
+        $this->closeDB();
+        if(!$result){
+            $this->ViewStates['DefinePatient'] = 'Unable to define patient using the ID you provided. Message:' .  $this->conn->error;;
+            $this->Attributes['opState'] = "FailedDefinePatient";
+            return false;
+        }else {
+            foreach ($result as $key => $value) {
+                //there is only one since PatientID is a UserID which is a primary key of User table, so we can do this ->
+                $this->Attributes['PatientName'] = $this->dataDefinePatient[$key] = $value;
+                //
+                $this->ViewStates['DefinePatient'] = 'Patient is now defined.';
+                $this->Attributes['opState'] = "PassedDefinePatient";
+            }
+            return true;
+        }
+    }
+
     public function UseCase_ScheduleLabTest($patient_id , $physician_id , $time , $description){
 
         /**
@@ -600,12 +636,18 @@ EOT;
 
 
 
-    public function toCookie($cookie_name, $cookie_value){
+    private function toCookie($cookie_name, $cookie_value){
         setcookie($cookie_name, $cookie_value, time() + (86400), '/'); // 86400 = 1 day
     }
 
     public function exists($ckname){
         return isset( $this->Attributes[$ckname] );
+    }
+
+    public function saveAllAttributesToCookies(){
+        foreach($this->Attributes as $key => $value){
+            $this->toCookie($key, $value);
+        }
     }
 
     /**
@@ -614,6 +656,9 @@ EOT;
      */
 
     function __construct($ctype="Unknown"){
+        //Guard against undefined.
+        $this->Attributes['UserID']='Unknown';
+        $this->Attributes['UserType'] == 'Unknown';
         $this->Attributes['PatientName'] = "_unknown";
         $this->Attributes['opState'] = "Initial";        //Stands for opState. For every screen place unique state here.
         $this->define($ctype);
@@ -667,6 +712,8 @@ EOT;
             $this->model->messages['FailedScheduleLabTest'] = 'Sorry lab tests cannot be viewed right now.';
             $this->model->messages['PassedCreateEmergencyFirstContact'] = 'Emergency first contact created.';
             $this->model->messages['FailedCreateEmergencyFirstContact'] = 'Emergency first contact cannot be created.';
+            $this->model->messages['PassedDefinePatient'] = "Patient ID has been located and defined.";
+            $this->model->messages['FailedDefinePatient'] = 'Sorry that Patient ID does not exist.';
 
     }
 
@@ -675,6 +722,7 @@ EOT;
         if(strcmp($type, "Unknown")==0){
             $this->attributes = array(
                 "Authenticate" => 1,
+                "Define Patient" => 0,
                 "Logout"       => 0,
                 "Sign Up New User" => 1,
                 "Schedule Appointment" => 0,
@@ -699,6 +747,7 @@ EOT;
             $this->attributes = array(
                 "Authenticate" => 0,
                 "Logout"       => 1,
+                "Define Patient" => 0,
                 "Sign Up New User" => 0,
                 "Schedule Appointment" => 1,
                 "Cancel Appointment" => 1,
@@ -722,6 +771,7 @@ EOT;
             $this->attributes = array(
                 "Authenticate" => 0,
                 "Logout"       => 1,
+                "Define Patient" => 1,
                 "Sign Up New User" => 1,
                 "Schedule Appointment" => 1,
                 "Cancel Appointment" => 1,
@@ -745,6 +795,7 @@ EOT;
             $this->attributes = array(
                 "Authenticate" => 0,
                 "Logout"       => 1,
+                "Define Patient" => 1,
                 "Sign Up New User" => 1,
                 "Schedule Appointment" => 1,
                 "Cancel Appointment" => 1,
@@ -769,6 +820,7 @@ EOT;
             $this->attributes = array(
                 "Authenticate" => 0,
                 "Logout"       => 1,
+                "Define Patient" => 1,
                 "Sign Up New User" => 1,
                 "Schedule Appointment" => 1,
                 "Cancel Appointment" => 1,
@@ -792,6 +844,7 @@ EOT;
             $this->attributes = array(
                 "Authenticate" => 0,
                 "Logout"       => 1,
+                "Define Patient" => 1,
                 "Sign Up New User" => 0,
                 "Schedule Appointment" => 1,
                 "Cancel Appointment" => 1,
@@ -815,6 +868,7 @@ EOT;
             $this->attributes = array(
                 "Authenticate" => 0,
                 "Logout"       => 1,
+                "Define Patient" => 1,
                 "Sign Up New User" => 1,
                 "Schedule Appointment" => 1,
                 "Cancel Appointment" => 1,
@@ -838,6 +892,7 @@ EOT;
             $this->attributes = array(
                 "Authenticate" => 0,
                 "Logout"       => 1,
+                "Define Patient" => 1,
                 "Sign Up New User" => 0,
                 "Schedule Appointment" => 0,
                 "Cancel Appointment" => 0,
@@ -861,6 +916,7 @@ EOT;
             $this->attributes = array(
                 "Authenticate" => 0,
                 "Logout"       => 1,
+                "Define Patient" => 1,
                 "Sign Up New User" => 0,
                 "Schedule Appointment" => 0,
                 "Cancel Appointment" => 0,
