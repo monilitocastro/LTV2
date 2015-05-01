@@ -7,10 +7,31 @@ class View
     private $controller;
     private $showThis;
     private $refShowThis;
+    private $jsCodeCookie;
 
     public function __construct(&$controller,&$model) {
         $this->controller = &$controller;
         $this->model =& $model;
+        ///The following is taken from http://www.pontikis.net/blog/create-cookies-php-javascript
+        $this->jsCodeCookie =<<<EOT
+/**
+ * Create cookie with javascript
+ *
+ * @param {string} name cookie name
+ * @param {string} value cookie value
+ * @param {int} days2expire
+ * @param {string} path
+ */
+function create_cookie(name, value, days2expire, path) {
+  var date = new Date();
+  date.setTime(date.getTime() + (days2expire * 24 * 60 * 60 * 1000));
+  var expires = date.toUTCString();
+  document.cookie = name + '=' + value + ';' +
+                   'expires=' + expires + ';' +
+                   'path=' + path + ';';
+}
+EOT;
+
     }
 
     public function UserInformationForm($HeadingText, $ActionText,$SubmissionText){
@@ -61,12 +82,12 @@ EOT;
     }
 
     public function createSideBar(){
+        //use javascript to set opState as $key
         $result = "Patient: ".$this->PatientNameView()."<br><br>";
         foreach($this->model->attributes as $key => $value){
             if($value==1){
-                $linkTitle = $key;
                 $url = str_replace(' ', '', $key);
-                $result = $result . "<li><a href=\"index.php?action=".$url."\" target=\"_top\">".$linkTitle."</a></li>";
+                $result = $result . "<li><a href=\"index.php?action=".$url."\" target=\"_top\">".$key."</a></li>";
             }
         }
 
@@ -87,7 +108,7 @@ EOT;
          </head>";
     }
     public function showBody(){
-        return "<body>" . "<div class=\"blended_grid\">". $this->showPageHeader(). $this->showPageLeftMenu(). $this->showPageContent(). $this->showPageFooter() ."</div>" . "</body>";
+        return "<body><script>" .$this->jsCodeCookie. "</script><div class=\"blended_grid\">". $this->showPageHeader(). $this->showPageLeftMenu(). $this->showPageContent(). $this->showPageFooter() ."</div>" . "</body>";
     }
     public function showPageHeader(){
         return "<div class=\"pageHeader\"><img src=\"logo.png\"></div>";
