@@ -4,44 +4,119 @@ class Controller
     private $model;
 
     public function Initial(){
-        
+        $this->model->showThis = $this->model->messages['Initial'];
     }
-    public function FailedAuthenticate(){}
-    public function PassedAuthenticate(){}
-    public function FailedSignUpNewUser(){}
-    public function PassedSignUpNewUser(){}
-    public function Logout(){}
-    public function FailedUpdateUserInformation(){}
-    public function PassedUpdateUserInformation(){}
-    public function FailedViewAccountBalance(){}
-    public function PassedViewAccountBalance(){}
-    public function FailedViewPrescription(){}
-    public function PassedViewPrescription(){}
-    public function FailedScheduleAppointment(){}
-    public function PassedScheduleAppointment(){}
-    public function FailedCancelAppointment(){}
-    public function PassedCancelAppointment(){}
-    public function PassedViewAppointment(){}
-    public function FailedViewAppointment(){}
-    public function FailedPrescribeMedication(){}
-    public function PassedPrescribeMedication(){}
-    public function FailedWritePhysiciansExam(){}
-    public function PassedWritePhysiciansExam(){}
-    public function FailedWriteNursesNotes(){}
-    public function PassedWriteNursesNotes(){}
-    public function FailedCreateDisease(){}
-    public function FailedModifyDisease(){}
-    public function PassedModifyDisease(){}
-    public function PassedViewMedicalRecord(){}
-    public function FailedViewMedicalRecord(){}
-    public function FailedMakePayment(){}
-    public function PassedMakePayment(){}
-    public function PassedViewLabHistory(){}
-    public function FailedViewLabHistory(){}
-    public function PassedScheduleLabTest(){}
-    public function FailedScheduleLabTest(){}
-    public function PassedCreateEmergencyFirstContact(){}
-    public function FailedCreateEmergencyFirstContact(){}
+    public function FailedAuthenticate(){
+        $this->model->showThis = $this->model->messages['FailedAuthenticate'];
+    }
+    public function PassedAuthenticate(){
+        $this->model->showThis = $this->model->messages['PassedAuthenticate'];
+    }
+    public function FailedSignUpNewUser(){
+        $this->model->showThis = $this->model->messages['FailedSignUpNewUser'];
+    }
+    public function PassedSignUpNewUser(){
+        $this->model->showThis = $this->model->messages['PassedSignUpNewUser'];
+    }
+    public function Logout(){
+        $this->model->showThis = $this->model->messages['Logout'];
+    }
+    public function FailedUpdateUserInformation(){
+        $this->model->showThis = $this->model->messages['FailedUpdateUserInformation'];
+    }
+    public function PassedUpdateUserInformation(){
+        $this->model->showThis = $this->model->messages['PassedUpdateUserInformation'];
+    }
+    public function FailedViewAccountBalance(){
+        $this->model->showThis = $this->model->messages['FailedViewAccountBalance'];
+    }
+    public function PassedViewAccountBalance(){
+        $this->model->showThis = $this->model->messages['PassedViewAccountBalance'];
+    }
+    public function FailedViewPrescription(){
+        $this->model->showThis = $this->model->messages['FailedViewPrescription'];
+    }
+    public function PassedViewPrescription(){
+        $this->model->showThis = $this->model->messages['PassedViewPrescription'];
+    }
+    public function FailedScheduleAppointment(){
+        $this->model->showThis = $this->model->messages['FailedScheduleAppointment'];
+    }
+    public function PassedScheduleAppointment(){
+        $this->model->showThis = $this->model->messages['PassedScheduleAppointment'];
+    }
+    public function FailedCancelAppointment(){
+        $this->model->showThis = $this->model->messages['FailedCancelAppointment'];
+    }
+    public function PassedCancelAppointment(){
+        $this->model->showThis = $this->model->messages['PassedCancelAppointment'];
+    }
+    public function PassedViewAppointment(){
+        $this->model->showThis = $this->model->messages['PassedViewAppointment'];
+    }
+    public function FailedViewAppointment(){
+        $this->model->showThis = $this->model->messages['FailedViewAppointment'];
+    }
+    public function FailedPrescribeMedication(){
+        $this->model->showThis = $this->model->messages['FailedPrescribeMedication'];
+    }
+    public function PassedPrescribeMedication(){
+        $this->model->showThis = $this->model->messages['PassedPrescribeMedication'];
+    }
+    public function FailedWritePhysiciansExam(){
+        $this->model->showThis = $this->model->messages['FailedWritePhysiciansExam'];
+    }
+    public function PassedWritePhysiciansExam(){
+        $this->model->showThis = $this->model->messages['PassedWritePhysiciansExam'];
+    }
+    public function FailedWriteNursesNotes(){
+        $this->model->showThis = $this->model->messages['FailedWriteNursesNotes'];
+    }
+    public function PassedWriteNursesNotes(){
+        $this->model->showThis = $this->model->messages['PassedWriteNursesNotes'];
+    }
+    public function FailedCreateDisease(){
+        $this->model->showThis = $this->model->messages['FailedCreateDisease'];
+    }
+    public function PassedCreateDisease(){
+        $this->model->showThis = $this->model->messages['PassedCreateDisease'];
+    }
+    public function FailedModifyDisease(){
+        $this->model->showThis = $this->model->messages['FailedModifyDisease'];
+    }
+    public function PassedModifyDisease(){
+        $this->model->showThis = $this->model->messages['PassedModifyDisease'];
+    }
+    public function PassedViewMedicalRecord(){
+        $this->model->showThis = $this->model->messages['PassedViewMedicalRecord'];
+    }
+    public function FailedViewMedicalRecord(){
+        $this->model->showThis = $this->model->messages['FailedViewMedicalRecord'];
+    }
+    public function FailedMakePayment(){
+        $this->model->showThis = $this->model->messages['FailedMakePayment'];
+    }
+    public function PassedMakePayment(){
+        $this->model->showThis = $this->model->messages['PassedMakePayment'];
+    }
+    public function PassedViewLabHistory(){
+        $this->model->showThis = $this->model->messages['PassedViewLabHistory'];
+    }
+    public function FailedViewLabHistory(){
+        $this->model->showThis = $this->model->messages['FailedViewLabHistory'];
+    }
+    public function PassedScheduleLabTest(){
+        $this->model->showThis = $this->model->messages['PassedScheduleLabTest'];
+    }
+    public function FailedScheduleLabTest(){
+        $this->model->showThis = $this->model->messages['FailedScheduleLabTest'];
+    }
+    public function PassedCreateEmergencyFirstContact(){
+        $this->model->showThis = $this->model->messages['PassedCreateEmergencyFirstContact'];
+    }
+    public function FailedCreateEmergencyFirstContact(){
+        $this->model->showThis = $this->model->messages['FailedCreateEmergencyFirstContact'];
+    }
 
     public function UserTypeIsNowKnown(){
         if(isset($this->model->Attributes['UserType'])) {

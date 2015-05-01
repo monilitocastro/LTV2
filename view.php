@@ -74,13 +74,11 @@ EOT;
     }
 
 
-    public function showTemplate($usecase){
-        $this->model->useCaseContent = $usecase;
+    public function showTemplate(){
         $concatString = "<html>". $this->showPreBody() . $this->showBody() . "</html>";
         return $concatString;
     }
     public function showPreBody(){
-
         return "<head>
 	 <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">
 	 <link rel=\"stylesheet\" type=\"text/css\" href=\"blended_layout.css\">
@@ -99,69 +97,12 @@ EOT;
 	    <ul>". $this->createSideBar() ."</ul>" ."</div>";
     }
 
-    public function GuardAgainstHacking(){
 
-        $tempArr1 = $this->model->attributes;
-        foreach($tempArr1 as $key => $value){
-            $tempArr1[str_replace(' ', '', $key)] = $value;
-        }
-        if( $_GET['action'] != 'DefinePatient' && $tempArr1[$_GET['action']]==0 ){
-            return true;
-        }
-        return false;
-    }
 
     public function showPageContent(){
-        $this->showThis=&$this->model->showThis;
-        $operation = & $this->model->opState;
-        if($operation=='trunk'){
-            if($this->GuardAgainstHacking()){       //TRUE if an attempt is made to see use cases with permission
-                return "&nbsp;<br/>&nbsp;<br/><center><h2>Welcome</h2></center>";
-            }
-            switch($this->model->useCaseContent){
-                case "Authenticate":
-                    $showThis=
-                        "<br/>&nbsp;<br/><div style='width:300px;margin:0 auto;'><form action='index.php?action=Authenticate' method='POST'><input type=\"textbox\" name='Username'><br/>
-         <input type='password' name='Password'><br/>
-         <input type='reset'><input type='submit' value='Log in'></div>";
-                    break;
-                case "SignUpNewUser":
-                    $showThis=$this->UserInformationForm("Please fill in the information: ","SignUpNewUser","Sign Up");
-                    break;
-                case "DefinePatient":
-                    $this->showThis = $this->showSearchTool("DefinePatient", "Name");
-                    break;
-                case "Logout":
-                    $showThis=$this->model->toCookie('UserID','Unknown');
-                    $this->model->define('Unknown');
-                    header("Location: /"); /* Redirect browser */
-                    exit();
-                case "ViewPrescription":
-                    $showThis = $this->showThis . $this->model->ViewPrescription();
-                    break;
-                case "ViewAccountBalance":
-                    $showThis = $this->model->ViewAccountBalance();
-                    break;
-                case "UpdateAccountInformation":
-                    $showThis = $this->UserInformationForm("Please modify the necessary fields: ", "UpdateAccountInformation", "Update");
-                    break;
-                default:
-                    break;
-            }
-        }elseif($operation=='showThis'){
 
-        }elseif($operation=='loggedin'){
-
-
-        };
-        return "<div class=\"pageContent\">".$showThis."</div>";
     }
 
-    public function showSearchTool($action, $attribute){
-        return
-            "<br/>&nbsp;<br/><div style='width:300px;margin:0 auto;'><form action='index.php?action=".$action."' method='POST'>Search ".$attribute.": <input type=\"textbox\" name='Name'><br/>
-         <input type='reset'>&nbsp;<input type='submit' value='Search'></div>";
-    }
 
     public function showPageFooter(){
         return "<div class=\"pageFooter\">"."</div>";

@@ -1,11 +1,11 @@
 <?php
 class Model
 {
-    public $attributes;                 //this member holds the permissions for UserType
-
+    public $attributes;                 //this member holds the permissions for UserType. relevant to sidebar
+    public $messages;
     public $servername;
     private $conn;
-    public $showThis;
+    public $showThis;                   //messages for showing on main panel content
     public $Attributes;                  //NOTE: $this->Attributes['opState'] is strictly used for pages presented to user.
     public $AttributesForCookiesSave;
 
@@ -448,7 +448,6 @@ EOT;
     }
 
     public function UseCase_CreateSpecialistReferral( $freeform, $PhysicianID, $patient_ID, $time ){
-        //first call DB to find out if employee with physicianID is a technician If so then use method schedule appointment
         $this->connectToDB();
 
         $queryString = "SELECT UserType FROM User WHERE UserID='" .$PhysicianID."';";
@@ -625,6 +624,49 @@ EOT;
             'Username',
             'Password',
             'Address');
+        $this->setMessages();
+
+    }
+
+    private function setMessages(){
+            $this->model->messages['Initial']='Welcome to your Hospital\'s LifeThread Electronic Medical Record system.';
+            $this->model->messages['FailedAuthenticate']='Sorry, you entered the wrong username and password combination. Try again.';
+            $this->model->messages['PassedAuthenticate'] =  'Welcome to your LifeThread Account.';
+            $this->model->messages['FailedSignUpNewUser']='Sorry, please use different account information to register.';
+            $this->model->messages['PassedSignUpNewUser'] = 'Welcome to your new LifeThread Account.';
+            $this->model->messages['Logout'] = 'Good Bye';
+            $this->model->messages['FailedUpdateUserInformation'] = 'Sorry, user update failed';
+            $this->model->messages['PassedUpdateUserInformation'] = 'Your account has been update with the new information.';
+            $this->model->messages['FailedViewAccountBalance'] = 'Sorry but your balance is not yet available.';
+            $this->model->messages['PassedViewAccountBalance'] =  'Here is your new statement.';
+            $this->model->messages['FailedViewPrescription'] = 'Sorry but your prescription history is not yet available.';
+            $this->model->messages['PassedViewPrescription'] = 'Here is you history of prescription.';
+            $this->model->messages['FailedScheduleAppointment'] = 'Sorry but your scheduled appointments are not yet available.';
+            $this->model->messages['PassedScheduleAppointment'] = 'Your schedule.';
+            $this->model->messages['FailedCancelAppointment'] = 'Sorry but we can not cancel that appointment. Please call the hospital.';
+            $this->model->messages['PassedCancelAppointment'] = 'Your selected appointment has been canceled.';
+            $this->model->messages['PassedViewAppointment'] = 'Here is your outstanding appointment.';
+            $this->model->messages['FailedViewAppointment'] = 'There no appointments right now.';
+            $this->model->messages['FailedPrescribeMedication'] = 'Sorry but medication cannot be prescribed right now.';
+            $this->model->messages['PassedPrescribeMedication'] = 'Prescription has been made for the patient.';
+            $this->model->messages['FailedWritePhysiciansExam'] = 'Sorry, your exam notes cannot be inserted right now.';
+            $this->model->messages['PassedWritePhysiciansExam'] = 'Your Physician\'s exam has been inserted into the record';
+            $this->model->messages['FailedWriteNursesNotes'] = 'Sorry, your notes cannot be inserted right now.';
+            $this->model->messages['PassedWriteNursesNotes'] = 'Your nurse\'s notes have been inserted into the record.';
+            $this->model->messages['FailedCreateDisease'] = 'Disease thread cannot be inserted';
+            $this->model->messages['PassedCreateDisease'] = 'Disease thread has been inserted';
+            $this->model->messages['FailedModifyDisease'] = 'Failed to modify disease thread';
+            $this->model->messages['PassedModifyDisease'] = 'Modification of disease thread is updated';
+            $this->model->messages['PassedViewMedicalRecord'] = 'Here is the patient\'s medical record';
+            $this->model->messages['FailedViewMedicalRecord'] = 'Sorry the medical records cannot be viewed right now';
+            $this->model->messages['FailedMakePayment'] = 'Payment cannot be made right now';
+            $this->model->messages['PassedMakePayment'] = 'Transaction successful.';
+            $this->model->messages['PassedViewLabHistory'] = 'Here is the patient\'s lab history.';
+            $this->model->messages['FailedViewLabHistory'] = 'Patient\'s lab history is currently not viewable.';
+            $this->model->messages['PassedScheduleLabTest'] = 'Here is the patient\'s lab test';
+            $this->model->messages['FailedScheduleLabTest'] = 'Sorry lab tests cannot be viewed right now.';
+            $this->model->messages['PassedCreateEmergencyFirstContact'] = 'Emergency first contact created.';
+            $this->model->messages['FailedCreateEmergencyFirstContact'] = 'Emergency first contact cannot be created.';
 
     }
 
