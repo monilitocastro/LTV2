@@ -69,19 +69,13 @@ EOT;
         return $result;
     }
     public function PatientNameView(){
-        //guard against undefined PatientName
-        if(!isset($this->model->Attributes['PatientName'])){
-            print "Undefined PatientName";
-            return "";
-        }
-        $result = "";
-        if( isset($this->model->Attributes['UserType']) && ($this->model->Attributes['UserType'] != 'Patient')   ){
-            //For everyone else
-            $result = $result . "<li><a href=\"index.php?action=DefinePatient\" target=\"_top\">Define Patient</a></li>";
-        }else if($this->model->Attributes['UserType'] == 'Patient'){
-            //just return patient name
+        $result = '';
+        if($this->model->Attributes['PatientName']=='Unknown'){
+            $result = $result. 'Patient unknown. Please Authenticate.';
+        }else{
             $result = $result . $this->model->Attributes['PatientName'];
         }
+
         return $result;
     }
 
@@ -91,7 +85,8 @@ EOT;
         foreach($this->model->attributes as $key => $value){
             if($value==1){
                 $url = str_replace(' ', '', $key);
-                $result = $result . "<li><a href='index.php' onClick='create_cookie('opState', '$url', 1, '/')' target='_top'>".$key."</a></li>";
+                //$result = $result . "<li><a href='index.php' onClick='create_cookie('opState', '$url', 1, '/')'>".$key."</a></li>";
+                $result = $result . "<li><a href='index.php' onClick=\"create_cookie('opState', '$url', 1, '/');\">".$key."</a></li>";
             }
         }
 
@@ -136,7 +131,7 @@ EOT;
 
 
     public function showPageContent(){
-
+        return $this->model->showThis;
     }
 
 

@@ -2,6 +2,9 @@
 class Controller
 {
     private $model;
+    public function Authenticate(){
+        $this->model->showThis =  "TESTING THIS STRING NEEDS TO BE DELETED. EACH OF THE USE CASE FIRST STEPS MUST HAVE THEIR OWN METHOD HERE!";
+    }
 
     public function Initial(){
         $this->model->showThis = $this->model->messages['Initial'];

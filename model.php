@@ -66,18 +66,8 @@ class Model
     public function getAllStates(){
         $this->getAllCookies();
         $this->getAllPOST();
-        $this->getAllGET();
-
-        //Guard against undefined.
-        if(!isset($this->Attributes['PatientName'])) {
-            $this->Attributes['PatientName'] = 'Unknown';
-        }
-        if(!isset($this->Attributes['UserID'])){
-            $this->Attributes['UserID']='Unknown';
-        }
-        if(!isset($this->Attributes['UserType'])){
-            $this->Attributes['UserType'] == 'Unknown';
-        }
+        //$this->getAllGET();  //don't use this as it is provides an easy way to hack the system.
+        //print_r($this->Attributes); //cookies don't change in the pipeline
     }
 
     private function getAllCookies(){
@@ -628,7 +618,7 @@ EOT;
     }
 
     /**/
-    public function saveSelectedAttributesToCookie(){
+    public function saveSelectedAttributesToCookies(){
         foreach($this->AttributesForCookiesSave as $key => $attribName){
             $this->toCookie( $attribName, $this->Attributes[$attribName]);
         }
@@ -648,6 +638,7 @@ EOT;
         foreach($this->Attributes as $key => $value){
             $this->toCookie($key, $value);
         }
+        print_r($this->Attributes);
     }
 
     /**
@@ -658,17 +649,18 @@ EOT;
     function __construct($ctype="Unknown"){
         //Guard against undefined.
         $this->Attributes['UserID']='Unknown';
-        $this->Attributes['UserType'] == 'Unknown';
-        $this->Attributes['PatientName'] = "_unknown";
-        $this->Attributes['opState'] = "Initial";        //Stands for opState. For every screen place unique state here.
+        $this->Attributes['UserType'] = 'Unknown';
+        $this->Attributes['PatientName'] = "Unknown";
+        $this->Attributes['opState'] = "Initial";        //Stands for opState.
+        //print_r($this->Attributes);
         $this->define($ctype);
-        $this->attributesForCookiesSave = array(            //Used by SaveSelectedCookies method
+        /**$this->attributesForCookiesSave = array(            //Used by SaveSelectedCookies method
             'UserID',
             'UserType',
             'Name',
             'Username',
             'Password',
-            'Address');
+            'Address');*/
         $this->setMessages();
 
     }
