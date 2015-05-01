@@ -46,7 +46,7 @@ class Model
      * It is made private so that it must be accessed by setters and getters.
      * If a particular value is not set, an error message will printed.
      */
-    private $ViewStates;
+    public $ViewStates;
 
 
 
@@ -191,12 +191,12 @@ EOT;
     }
 
     public function UseCase_ViewPrescription(){
-        $resultString = "";
+        $PatientID = $this->Attributes['PatientID'];
         $this->connectToDB();
         $queryString = <<<EOT
 SELECT Prescription.Name, MedicalRecord.Timestamp
         FROM Prescription, MedicalRecord
-        WHERE MedicalRecord.PatientID='$this->PatientID' AND MedicalRecord.RxNumber = Prescription.RxNumber
+        WHERE MedicalRecord.PatientID='$PatientID' AND MedicalRecord.RxNumber = Prescription.RxNumber
         ORDER BY MedicalRecord.Timestamp DESC;
 EOT;
         $result = $this->conn->query($queryString);
@@ -434,13 +434,16 @@ EOT;
     }
 
 
-    public function UseCase_ViewLabHistory($PatientID){
-        //this function will retrieve an array
+    public function UseCase_ViewLabHistory(){
+        //this function will retrieve an array and is probably similar to view medical history (which uses MedicalRecord instead)
+        $PatientID=$this->Attributes['PatientID'];
         $queryString=<<<EOT
-SELECT User.Name, PhysicianUser.Name ,Description.FreeFormText
-FROM User AS PatientUser, User AS PhysicianUser, Appointment, Description
-WHERE Appointment.PatientID='$PatientID' AND PatientUser.UserID=Appointment.PatientID AND Appointment.DescriptionID=Description.DescriptionID
-AND PhysicianUser.UserID=Appointment.PhysicianID AND PhysicianUser.UserType='Technician';
+SELECT *
+FROM User AS PatientUser, User as PhysicianUser, Description, Appointment
+WHERE Appointment.PatientID='$PatientID' AND Appointment.PatientID=PatientUser.UserID
+AND Appointment.DescriptionID=Description.DescriptionID
+AND PhysicianUser.UserID=Appointment.PhysicianID
+AND PhysicianUser.UserType='Technician';
 EOT;
         $this->connectToDB();
         $result = $this->conn->query($queryString);
@@ -454,7 +457,7 @@ EOT;
             $this->Attributes['opState']="PassedViewLabHistory";
 
         }else{
-            print "ERROR: model->UseCase_ViewAppointments";
+            //There are no records to display
             $ViewState['ViewLabHistory'] ="Error: Unable to view lab test appointments and history";
             $this->Attributes['opState']="FailedViewLabHistory";
             return false;
@@ -495,49 +498,16 @@ EOT;
         }
     }
 
-    public function UseCase_ScheduleLabTest( $freeform, $PhysicianID, $patient_ID, $time ){
-        // similar to create specialist referral. First checks to see if it is a technician. if so it calls schedule lab test
-        $this->connectToDB();
-
-        $queryString = "SELECT UserType FROM User WHERE UserID='" .$PhysicianID."';";
-
-        $result = $this->conn->query($queryString);
-        $this->closeDB();
-        if($result->num_rows == 1){
-            $this->closeDB();
-            $row = $result->fetch_assoc();
-            foreach($row as $key => $value){
-                $this->Attributes[$key] = $value;
-            }
-
-
-            if($this->Attributes['UserType']=='Technician'){
-                //call schedule patient
-                //private_ScheduleLabTest($patient_id , $physician_id , $time , $description)
-                return $this->UseCase_ScheduleAppointment($freeform, $PhysicianID,$patient_ID,$time);
-                return $this->private_ScheduleLabTest($patient_ID , $PhysicianID , $time , $freeform);
-            }else{
-                //The DB should be confirm that it is a technician. If not then expected value is not set up in HTML code
-                return false;
-            }
-
-        }else{
-
-            print "ERROR: model->CreateSpecialistReferral";
-            $this->dataCreateSpecialistReferral="ERROR";
-            return false;
-        }
-    }
-
     public function UseCase_CreateEmergencyFirstContact(){
         //need to implement
         throw new Exception("Unimplemented method CreateEmergencyFirstConteact");
     }
 
-    private function private_ScheduleLabTest($patient_id , $physician_id , $time , $description){
+    public function UseCase_ScheduleLabTest($patient_id , $physician_id , $time , $description){
         $queryString=<<<EOT
-CALL schedule_lab_test($patient_id , $physician_id , $time , $description);
+CALL schedule_lab_test($patient_id, $physician_id, $time, "$description");
 EOT;
+        $this->connectToDB();
         if(!$this->conn->query($queryString)){
             print "Errormessage: " . $this->conn->error;
             $this->closeDB();
@@ -546,7 +516,7 @@ EOT;
             return false;
         }
         $this->closeDB();
-        $this->ViewStates['MakeLabTest'] = 'The Lab test has been scheduled';
+        $this->ViewStates['ScheduleLabTest'] = 'The Lab test has been scheduled';
         $this->Attributes['opState']="PassedScheduleLabTest";
         return true;
     }
@@ -569,7 +539,7 @@ EOT;
 
 
             if($this->Attributes['UserType']=='Patient'){
-                $this->Attributes['PatientName'] = $this->UserAttributes['Name'];
+                $this->Attributes['PatientName'] = $this->Attributes['Name'];
             }else{
                 $this->Attributes['PatientName'] = "Please choose a Patient.<br/>";
             }
