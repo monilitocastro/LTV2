@@ -34,6 +34,59 @@ EOT;
 
     }
 
+    public function CheckCredentials(){
+        //$Username = $this->model->Attributes['Username'];
+        //$Password = $this->model->Attributes['Password'];
+        $this->controller->CheckCredentials();
+    }
+
+    public function BTN($arg){
+        if(!isset($arg[3])){
+            print 'BTN requires 4 inputs.';
+        }
+        $insertOrNot = $arg[3] != '' ? 'onclick="create_cookie(\'opState\', $arg[3], 1, \'/\');" ' : "";
+        $result='<button type=\''.$arg[0].'\' value=\''.$arg[1].'\' '.$insertOrNot.'>'.$arg[2].'</button>';
+        return $result;
+    }
+
+    public function IB($arg){
+        print "INSIDE IB!";
+        $result=<<<EOT
+<p class='formlabel'>$arg[0]</p>
+<input type='textbox' name='$arg[1]' style='border:2px;'/>
+EOT;
+        return $result;
+    }
+    public function BR(){
+        return "<BR/>";
+    }
+    public function ConcatenationWithDynamicFunctionCalls(){
+        $result = "<div style='margin:auto;padding-left:100px;'><form method='POST' action='index.php'>";
+        foreach($this->controller->makeThese as $key => $value){
+            print_r($value[0]);
+            $argArray = array_splice($value, 1);
+            print_r($argArray);
+            $result = $result . $this->{$value[0]}($argArray);
+        }
+        return $result.'</form></div>';
+    }
+
+/**    Frustrated with this method
+    public function ConcatenationWithDynamicFunctionCalls(){
+        $result = 'RESULT VAR';
+        foreach($this->controller->makeThese as $key => $value){
+            $functName = $value[0];//substr($row[0], 0, strlen($row[0]) );
+            $argArray = array_splice($value, 1);
+            //IMPORTANT: each function provided by $functName must return a string.
+            print_r($value[0]);
+            print_r($argArray);
+            //print "Is callable: ". is_callable($value) ? 'True':'False';
+           $result = $result . call_user_func_array(array($this->controller, $value), $argArray);
+        }
+        //$this->{call_user_func_array(array('IB','Value', 'Label'))};
+        return $result;
+    }
+*/
     public function UserInformationForm($HeadingText, $ActionText,$SubmissionText){
         $Username = "";
         $Name = "";
@@ -131,12 +184,15 @@ EOT;
 
 
     public function showPageContent(){
-        return $this->model->showThis;
+        return "<div class=\"pageContent\">".$this->model->showThis
+        ."<br/>"
+        . $this->ConcatenationWithDynamicFunctionCalls()
+        ."</div>";
     }
 
 
     public function showPageFooter(){
-        return "<div class=\"pageFooter\">"."</div>";
+        return "<div class=\"pageFooter\">"."&copy; 2015  Monilito Castro<BR/>monilito.castro[at]my.und.edu</div>";
     }
 
     /**

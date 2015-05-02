@@ -2,8 +2,42 @@
 class Controller
 {
     private $model;
+    public $makeThese;
     public function Authenticate(){
-        $this->model->showThis =  "TESTING THIS STRING NEEDS TO BE DELETED. EACH OF THE USE CASE FIRST STEPS MUST HAVE THEIR OWN METHOD HERE!";
+        $this->model->showThis =  "Please fill in the form to login to the secure server.";
+        $this->makeThese[] = array('IB', 'Username: ', 'Username');
+        $this->makeThese[] = array('IB', 'Password: ', 'Password');
+        $this->makeThese[] = array('BR');
+        $this->makeThese[] = array('BTN', 'Reset','Reset', 'Reset', '');
+        $this->makeThese[] = array('BTN', 'Submit','Submit', 'Login', 'CheckCredentials');  //arglist type, value, label
+    }
+
+    public function SignUpNewUser(){
+        $this->model->showThis =  "Signup TESTING THIS STRING NEEDS TO BE DELETED. EACH OF THE USE CASE FIRST STEPS MUST HAVE THEIR OWN METHOD HERE!";
+    }
+
+    //public function Logout(){}
+    //public function UseCase_UpdateUserInformation(){}
+    //public function ViewAccountBalance(){}
+    //public function ViewPrescription(){}
+    //public function ScheduleAppointment(){}
+    //public function CancelAppointment(){}
+    //public function ViewAppointments(){}
+    //public function PrescribeMedication(){}
+    //public function WritePhysiciansExam(){}
+    //public function WriteNursesNotes(){}
+    //public function CreateDisease(){}
+    //public function ModifyDisease(){}
+    //public function ViewMedicalRecord(){}
+    //public function MakePayment(){}
+    //public function ViewLabHistory(){}
+    //public function CreateSpecialistReferral(){}
+    //public function CreateEmergencyFirstContact(){}
+    //public function DefinePatient(){}
+    //public function ScheduleLabTest(){}
+
+    public function CheckCredentials(){
+        $this->model->UseCase_Authenticate();
     }
 
     public function Initial(){
