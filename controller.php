@@ -10,35 +10,58 @@ class Controller
         $this->makeThese[] = array('BR');
         $this->makeThese[] = array('BTN', 'Reset','Reset', 'Reset', '');
         $this->makeThese[] = array('BTN', 'Submit','Submit', 'Login', 'CheckCredentials');  //arglist type, value, label
+
     }
+
 
     public function SignUpNewUser(){
         $this->model->showThis =  "Signup TESTING THIS STRING NEEDS TO BE DELETED. EACH OF THE USE CASE FIRST STEPS MUST HAVE THEIR OWN METHOD HERE!";
     }
 
     //public function Logout(){}
-    //public function UseCase_UpdateUserInformation(){}
-    //public function ViewAccountBalance(){}
-    //public function ViewPrescription(){}
+    public function ViewAccountBalance(){}
+    public function ViewPrescription(){}
     //public function ScheduleAppointment(){}
-    //public function CancelAppointment(){}
-    //public function ViewAppointments(){}
-    //public function PrescribeMedication(){}
-    //public function WritePhysiciansExam(){}
-    //public function WriteNursesNotes(){}
-    //public function CreateDisease(){}
-    //public function ModifyDisease(){}
-    //public function ViewMedicalRecord(){}
-    //public function MakePayment(){}
-    //public function ViewLabHistory(){}
-    //public function CreateSpecialistReferral(){}
-    //public function CreateEmergencyFirstContact(){}
-    //public function DefinePatient(){}
-    //public function ScheduleLabTest(){}
+    public function CancelAppointment(){}
+    public function ViewAppointments(){}
+    public function PrescribeMedication(){}
+    public function WritePhysiciansExam(){}
+    public function WriteNursesNotes(){}
+    public function CreateDisease(){}
+    public function ModifyDiseaseThread(){}
+    public function ViewMedicalRecord(){}
+    public function MakePayment(){}
+    public function ViewLabHistory(){}
+    public function CreateSpecialistReferral(){}
+    public function CreateEmergencyFirstContact(){}
+    public function DefinePatient(){}
+    public function ScheduleLabTest(){}
 
     public function CheckCredentials(){
-        $this->model->UseCase_Authenticate();
+        if(!$this->model->UseCase_Authenticate()){
+            $this->redirect('FailedAuthenticate');
+            return "AUTH FAILED";
+        }else{
+            //print"AUTH GOOD";
+            $this->redirect('PassedAuthenticate');
+            return $this->model->ViewStates['Authenticate'];
+        }
     }
+
+    public function redirect($opState){
+        $this->model->Attributes['opState']=$opState;
+        $this->model->saveAllAttributesToCookies();
+        header('Location: index.php');
+        die();
+    }
+
+    public function ScheduleAppointment(){
+        return "";
+    }
+
+    public function UpdateAccountInformation(){
+    }
+
 
     public function Initial(){
         $this->model->showThis = $this->model->messages['Initial'];
@@ -62,7 +85,10 @@ class Controller
         $this->model->showThis = $this->model->messages['PassedSignUpNewUser'];
     }
     public function Logout(){
-        $this->model->showThis = $this->model->messages['Logout'];
+        $this->model->showThis =  $this->model->messages['Logout'];
+        $this->model->UseCase_Logout();
+        $this->model->redefine();
+        //print $this->model->messages['Logout'];
     }
     public function FailedUpdateUserInformation(){
         $this->model->showThis = $this->model->messages['FailedUpdateUserInformation'];
@@ -161,36 +187,7 @@ class Controller
         $this->model->showThis = $this->model->messages['FailedCreateEmergencyFirstContact'];
     }
 
-    public function UserTypeIsNowKnown(){
-        if(isset($this->model->Attributes['UserType'])) {
-            $this->model->define($this->model->Attributes['UserType']);
-        }
-    }
-
-    public function askUserToChooseDifferently(){
-        $this->model->opState = "showThis";
-        $this->model->showThis = "<br/>&nbsp;<br/><center>Sorry but that user name or password are taken. Please choose another</center>";
-    }
-
-    public function welcomeTheUser(){
-        $Name = $this->model->Attributes['Name'];
-        $Address = $this->model->Attributes['Address'];
-        $Username = $this->model->Attributes['Username'];
-        $Password = $this->model->Attributes['Password'];
-        $this->model->opState = "showThis";
-        $this->model->showThis = "<br/>&nbsp;<br/><center>Welcome to LifeThread, ".$Name.".<br/> You live at ". $Address .".</center>";
-        $this->model->FromCookies['UserID'] = $this->model->get_UserID_fromDB($Username, $Password);
-        $this->model->toCookie("UserID", $this->model->FromCookies['UserID'] );
-    }
-
-    public function registerTheUser(){
-        $Username = $this->model->Attributes['Username'];
-        $Name = $this->model->Attributes['Name'];
-        $Address = $this->model->Attributes['Address'];
-        $Password = $this->model->Attributes['Password'];
-        $this->model->updateUserInformation($Name, $Username, $Password, $Address);
-    }
-    public function updateAccountInformation(){
+    public function UpdateAccountInformation2(){
         $Username = $this->model->Attributes['Username'];
         $Name = $this->model->Attributes['Name'];
         $Address = $this->model->Attributes['Address'];
