@@ -13,17 +13,25 @@ class Controller
 
     }
 
-
-    public function SignUpNewUser(){
-        $this->model->showThis =  "Signup TESTING THIS STRING NEEDS TO BE DELETED. EACH OF THE USE CASE FIRST STEPS MUST HAVE THEIR OWN METHOD HERE!";
-    }
-
     //public function Logout(){}
-    public function ViewAccountBalance(){}
-    public function ViewPrescription(){}
+    public function ViewAccountBalance(){
+        $this->model->UseCase_ViewAccountBalance();
+        $this->model->showThis = "Your Account Balance";
+        $this->makeThese[] = array("SINGLEVALUE", "dataViewAccountBalance");
+    }
+    public function ViewPrescription(){
+        //$this->dataViewPrescription[$index] = array($RxName, $RxTimestamp);
+        $this->model->UseCase_ViewPrescription();
+        $this->model->showThis = "View Prescription";
+        array_unshift($this->model->dataViewPrescription, array(0=>"Drug name",1=>"Date and Time") );
+        $this->makeThese[] = array("TABLE", "dataViewPrescription");
+
+    }
     //public function ScheduleAppointment(){}
     public function CancelAppointment(){}
-    public function ViewAppointments(){}
+    public function ViewAppointments(){
+
+    }
     public function PrescribeMedication(){}
     public function WritePhysiciansExam(){}
     public function WriteNursesNotes(){}
@@ -40,11 +48,10 @@ class Controller
     public function CheckCredentials(){
         if(!$this->model->UseCase_Authenticate()){
             $this->redirect('FailedAuthenticate');
-            return "AUTH FAILED";
+            //return "AUTH FAILED";
         }else{
-            //print"AUTH GOOD";
             $this->redirect('PassedAuthenticate');
-            return $this->model->ViewStates['Authenticate'];
+            //return $this->model->ViewStates['Authenticate'];
         }
     }
 
@@ -59,7 +66,52 @@ class Controller
         return "";
     }
 
+    public function SignUpNewUser(){
+        $this->model->showThis = "Please enter information";
+        $this->makeThese[] = array('IB', 'Name: ', 'Name');
+        $this->makeThese[] = array('IB', 'User name: ', 'Username');
+        $this->makeThese[] = array('IB', 'Password: ', 'Password');
+        $this->makeThese[] = array('IB', 'Address: ', 'Address');
+        $this->makeThese[] = array('BTN', 'Reset','Reset', 'Reset', '');
+        $this->makeThese[] = array('BTN', 'Submit','Submit', 'Sign Up', 'CheckSignUpNewUser');  //arglist type, value, label
+
+
+    }
+    public function CheckSignUpNewUser(){
+        $Name=$_POST['Name'];
+        $Username=$_POST['Username'];
+        $Password=$_POST['Password'];
+        $Address=$_POST['Address'];
+        if($this->model->UseCase_SignUpNewUser($Name, $Username, $Password, $Address)){
+            $this->redirect('PassedSignUpNewUser');
+        }else{
+            $this->redirect('FailedSignUpNewUser');
+        }
+    }
+
     public function UpdateAccountInformation(){
+        $this->model->UseCase_ViewBasicAccountInformation();
+        $info = $this->model->dataViewBasicAccountInformation;
+        $this->model->showThis = "Please enter information";
+        $this->makeThese[] = array('IB', 'Name: ', 'Name', $info['Name']);
+        $this->makeThese[] = array('IB', 'User name: ', 'Username', $info['Username']);
+        $this->makeThese[] = array('IB', 'Password: ', 'Password', $info['Password']);
+        $this->makeThese[] = array('IB', 'Address: ', 'Address', $info['Address']);
+        $this->makeThese[] = array('BTN', 'Reset','Reset', 'Reset', '');
+        $this->makeThese[] = array('BTN', 'Submit','Submit', 'Update', 'CheckUpdateAccountInformation');  //arglist type, value, label
+
+
+    }
+    public function CheckUpdateAccountInformation(){
+        $Name=$_POST['Name'];
+        $Username=$_POST['Username'];
+        $Password=$_POST['Password'];
+        $Address=$_POST['Address'];
+        if($this->model->UseCase_UpdateUserInformation($Name, $Username, $Password, $Address)){
+            $this->redirect('PassedUpdateUserInformation');
+        }else{
+            $this->redirect('FailedUpdateUserInformation');
+        }
     }
 
 
@@ -83,6 +135,7 @@ class Controller
     }
     public function PassedSignUpNewUser(){
         $this->model->showThis = $this->model->messages['PassedSignUpNewUser'];
+        //redirect("PassedAuthenticate");
     }
     public function Logout(){
         $this->model->showThis =  $this->model->messages['Logout'];
@@ -187,13 +240,6 @@ class Controller
         $this->model->showThis = $this->model->messages['FailedCreateEmergencyFirstContact'];
     }
 
-    public function UpdateAccountInformation2(){
-        $Username = $this->model->Attributes['Username'];
-        $Name = $this->model->Attributes['Name'];
-        $Address = $this->model->Attributes['Address'];
-        $Password = $this->model->Attributes['Password'];
-        $this->model->signUpNewUser($Name, $Username, $Password, $Address);
-    }
 
     public function __construct(&$model){
         $this->model = &$model;

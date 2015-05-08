@@ -34,6 +34,37 @@ EOT;
 
     }
 
+    public function SINGLEVALUE($arg){
+        //print($arg);
+        return "\$".$this->model->{$arg[0]};
+    }
+
+    public function TABLE($arg){
+        //print('\''.$this->model->{$arg[0]}.'\'');
+        //print $this->model->dataViewAccountBalance;
+        $numRow = 0;
+        $result = "<table>";
+        $arr = $this->model->{$arg[0]};
+        //print ($arr);
+        foreach($arr as $key => $value){
+            $numRow++;
+            $color = ($numRow % 2 == 1)? "#BBFFBB": "#FFFFFF";
+            if($numRow==1){
+                $result = $result . "<tr style='background-color:black;color:white;'>";
+            }else{
+                $result = $result . "<tr style='background-color:$color;color:black;'>";
+            }
+            foreach($value as $item){
+                $result = $result . "<td>".$item."</td>";
+            }
+            $result = $result. "</tr>";
+        }
+        if($numRow==0){$result=$result."No Prescription";}
+        $result = $result . "</table>";
+
+        return $result;
+    }
+
     public function CheckCredentials(){
         //$Username = $this->model->Attributes['Username'];
         //$Password = $this->model->Attributes['Password'];
@@ -45,15 +76,21 @@ EOT;
             print 'BTN requires 4 inputs.';
         }
         $insertOrNot = ($arg[3] != '')?'onclick="create_cookie(\'opState\', \''.$arg[3].'\', 1, \'/\');" ' : "";
-        $result='<button type=\''.$arg[0].'\' value=\''.$arg[1].'\' '.$insertOrNot.'>'.$arg[2].'</button>';
+        $result='<button type=\''.$arg[0].'\' value=\''.$arg[1].'\' '.$insertOrNot.' style=\'padding:5px;color:white;background-color:black;border-radius:2px\'>'.$arg[2].'</button>&nbsp;&nbsp;';
         return $result;
     }
 
     public function IB($arg){
         //print "INSIDE IB!";
+        $arg2= "";
+        if(!isset($arg[2])){
+            $arg2="";
+        }else{
+            $arg2= $arg[2];
+        }
         $result=<<<EOT
 <p class='formlabel'>$arg[0]</p>
-<input type='textbox' name='$arg[1]' style='border:2px;'/>
+<input type='textbox' name='$arg[1]' style='border:2px;'/ value='$arg2'><br/>
 EOT;
         return $result;
     }
@@ -62,7 +99,9 @@ EOT;
     }
     public function ConcatenationWithDynamicFunctionCalls(){
 
-        $result = "<div style='margin:auto;padding-left:100px;'><form method='POST' action='index.php'>";
+        $result = "<div style='margin:auto;padding-left:100px;'><form method='POST' action='index.php'><h3>"
+            .$this->model->showThis
+        ."</h3><br/>&nbsp;<br/>";
         foreach($this->controller->makeThese as $key => $value){
             //print_r($value[0]);
             $argArray = array_splice($value, 1);
@@ -185,11 +224,10 @@ EOT;
 
 
     public function showPageContent(){
-        return "<div class=\"pageContent\">"
-        .$this->model->showThis
-        ."<br/>"
+        return "<div class=\"pageContent\"><div style='margin:0 auto;padding-left:80px;'>"
+        ."<br/>&nbsp;<br/>"
         . $this->ConcatenationWithDynamicFunctionCalls()
-        ."</div>";
+        ."</div></div>";
     }
 
 

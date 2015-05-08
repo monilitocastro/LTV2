@@ -18,6 +18,7 @@ class Model
      * The types are all different and not all use cases will have one.
      * For example dataAuthenticated is a boolean and dataViewPrescription is a 2-D array.
      */
+    public $dataViewBasicAccountInformation;
     public $dataAuthenticate;
     //public $dataLogout; //There shouldn't be a need for this.
     public $dataDefinePatient;
@@ -96,21 +97,15 @@ class Model
         if(!$this->get_UserID_fromDB($Username, $Password)){
             $this->dataAuthenticate=false;
             $this->Attributes['opState']="FailedAuthenticate";
+            return false;
         }else{
             $this->dataAuthenticate=true;
             $this->Attributes['opState']="PassedAuthenticate";
+            $this->toCookie("UserID",$this->UserAttributes['UserID'] );
+            $this->getAllUserAttributesFromDB();
+            $this->define($this->Attributes['UserType']);
+            return true;
         }
-
-        if($this->Attributes['UserID'] =='ERROR'){
-            $this->ViewStates['Authenticate'] = "Sorry wrong username password combination.";
-            return false;
-        }else{
-            $this->ViewStates['Authenticate'] = "Welcome to LifeThread";
-        }
-        $this->toCookie("UserID",$this->UserAttributes['UserID'] );
-        $this->getAllUserAttributesFromDB();
-        $this->define($this->Attributes['UserType']);
-        return true;
     }
 
     public function UseCase_SignUpNewUser($Name, $Username, $Password, $Address){
@@ -130,6 +125,9 @@ EOT;
         $this->closeDB();
         $this->ViewStates['SignUpNewUser'] = 'Welcome to your hospital\'s LifeThread Electronic Medical Record System';
         $this->Attributes['opState']="PassedSignUpNewUser";
+        $this->Attributes['Username']= $Username;
+        $this->Attributes['Password']=$Password;
+        $this->UseCase_Authenticate();
         return true;
 
     }
@@ -160,6 +158,27 @@ EOT;
         }
         $this->closeDB();
         $this->Attributes['opState']="PassedUpdateUserInformation";
+        return true;
+    }
+
+    public function UseCase_ViewBasicAccountInformation(){
+        $resultString = "";
+        $this->connectToDB();
+        $UserID = $this->Attributes['UserID'];
+        $queryString = <<<EOT
+SELECT Name, Username, Password, Address FROM User WHERE UserID='$UserID';
+EOT;
+        $resultString="";
+        $result = $this->conn->query($queryString);
+        if(!$result){
+            $this->Attributes['opState']="FailedViewBasicAccountInformation";
+            $this->ViewState['ViewAccountBalance'] = 'No balance.';
+            print "ERROR: null result in UseCase_ViewAccountBalance";
+            return false;
+        }
+        $row = $result->fetch_assoc();
+        $this->ViewState['ViewBasicAccountInformation'] = 'Basic account information ';
+        $this->dataViewBasicAccountInformation = $row;
         return true;
     }
 
@@ -586,8 +605,6 @@ EOT;
             $this->Attributes['UserID'] = $row['UserID'];
             return true;
         }else{
-            print_r($row);
-            print "ERROR: get_UserID_fromDB";
             return false;
         }
     }

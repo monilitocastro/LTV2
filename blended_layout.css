@@ -4,6 +4,13 @@
     border : 0;
     font-family: Georgia, serif;
 }
+table tr td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+input : focus {
+    background-color: #555500;
+}
 body{
     background-image :  url('background.jpg');
     background-attachment : scroll;
@@ -31,7 +38,7 @@ body{
     width : 200px;
 }
 .pageContent{
-    background-color : rgba(247,247,247,0.85);
+    background-color : rgba(207,207,207,0.85);
     float : left;
     clear : none;
     height : 600px;
