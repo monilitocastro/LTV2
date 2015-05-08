@@ -19,6 +19,7 @@ class Model
      * For example dataAuthenticated is a boolean and dataViewPrescription is a 2-D array.
      */
     public $dataViewBasicAccountInformation;
+    public $dataSearchFor;
     public $dataAuthenticate;
     //public $dataLogout; //There shouldn't be a need for this.
     public $dataDefinePatient;
@@ -88,6 +89,25 @@ class Model
             //print " post: ".$val;
         }
         //print_r($this->Attributes);
+    }
+
+    public function UseCase_SearchFor(){
+        $resultString = "";
+        $this->connectToDB();
+        $SearchName = '%'.$this->Attributes['NameToSearchFor'].'%';
+        $queryString = <<<EOT
+SELECT UserID, Name, Username, Address FROM User WHERE Name LIKE '$SearchName';
+EOT;
+        $result = $this->conn->query($queryString);
+        $this->closeDB();
+        if(!$result){
+            return false;
+        }
+        while($row = $result->fetch_assoc())
+        {
+            $this->dataSearchFor[]=$row;
+        }
+        return true;
     }
 
 
@@ -173,7 +193,6 @@ EOT;
         if(!$result){
             $this->Attributes['opState']="FailedViewBasicAccountInformation";
             $this->ViewState['ViewAccountBalance'] = 'No balance.';
-            print "ERROR: null result in UseCase_ViewAccountBalance";
             return false;
         }
         $row = $result->fetch_assoc();
@@ -196,12 +215,10 @@ EOT;
             $this->Attributes['opState']="FailedViewAccountBalance";
             $this->ViewState['ViewAccountBalance'] = 'No balance.';
             $this->dataViewAccountBalance = 'ERROR';
-            print "ERROR: null result in UseCase_ViewAccountBalance";
             return false;
         }
         while($row = $result->fetch_assoc())
         {
-            $this->UserAttributes=$row;
             $Balance=$row['Balance'];
         }
         $resultString = $resultString."</div>";
@@ -554,6 +571,21 @@ EOT;
         return true;
     }
 
+    public function getPatientName(){
+        $this->connectToDB();
+
+        $queryString = "SELECT * FROM User WHERE UserID='" .$this->Attributes['PatientID']."';";
+
+        $result = $this->conn->query($queryString);
+        $this->closeDB();
+        if($result->num_rows == 1){
+            $this->closeDB();
+            //$row = $result->fetch_assoc();
+            $row = $result->fetch_assoc();
+            $this->Attributes['PatientName']=$row['Name'];
+        }
+
+    }
 
     public function getAllUserAttributesFromDB(){
 
@@ -576,13 +608,11 @@ EOT;
                 $this->Attributes['PatientName'] = $this->Attributes['Name'];
                 $this->Attributes['PatientID'] = $this->Attributes['UserID'];
             }else{
-                $this->Attributes['PatientName'] = "Please choose a Patient.<br/>";
-                $this->Attributes['PatientID'] = $this->Attributes['UserID'];
+                if(!isset($this->Attributes['PatientName']))$this->Attributes['PatientName'] = "Please choose a Patient.<br/>";
+                //$this->Attributes['PatientID'] = $this->Attributes['UserID'];
             }
 
         }else{
-
-            print "ERROR: model->getAllUserAttributesFromDB";
             $this->Attributes['UserID']="ERROR";
         }
     }
@@ -659,7 +689,7 @@ EOT;
         foreach($this->Attributes as $key => $value){
             $this->toCookie($key, $value);
         }
-        print_r($this->Attributes);
+        //print_r($this->Attributes);
     }
 
     /**

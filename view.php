@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-
 <?php
 class View
 {
@@ -60,6 +58,38 @@ EOT;
             $result = $result. "</tr>";
         }
         if($numRow==0){$result=$result."No Prescription";}
+        $result = $result . "</table>";
+
+        return $result;
+    }
+
+    public function RADIOTABLE($arg){
+        $numRow = 0;
+        $numCol=0;
+        $result = "<table>";
+        $arr = $this->model->{$arg[0]};
+        foreach($arr as $key => $value){
+            $numRow++;
+            $numCol = 0;
+            $color = ($numRow % 2 == 1)? "#BBFFBB": "#FFFFFF";
+            if($numRow==1){
+                $result = $result . "<tr style='background-color:black;color:white;'>";
+            }else{
+                $result = $result . "<tr style='background-color:$color;color:black;'>";
+            }
+            foreach($value as $key2 => $value2){
+                $numCol++;
+                if($numRow==1 && $numCol==1){
+                    $result = $result . "<td>".$value2."</td>";
+                }elseif($numRow!=1 && $numCol==1){
+                    $result = $result . "<td><input type='radio' name='PatientID' value='$value2' / ></td>";
+                }else {
+                    $result = $result . "<td>" . $value2 . "</td>";
+                }
+            }
+            $result = $result. "</tr>";
+        }
+        if($numRow==0){$result=$result."<br>&nbsp;<br/>Search result:<br/>&nbsp;<br/>";}
         $result = $result . "</table>";
 
         return $result;

@@ -11,7 +11,7 @@ if($model->Attributes['UserID'] != 'Unknown') {
 $model->redefine();
 $controller = new Controller($model);
 //print "opState = ". $model->Attributes['opState']   ;
-print_r($model->Attributes['opState']);
+//print_r($model->Attributes['opState']);
 $controller->{$model->Attributes['opState']}();
 $view = new View($controller, $model);
 $model->saveAllAttributesToCookies();

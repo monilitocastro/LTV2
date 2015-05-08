@@ -1,0 +1,14 @@
+<?php
+class Foo{
+	public function bar1($foo){
+		print $foo;
+	}
+	public function bar2($foo){
+		print "FOO2".$foo;
+	}
+}
+
+$foo = new Foo();
+$f = array('bar2', 'bar');
+$foo->{call_user_func}($f);
+?>

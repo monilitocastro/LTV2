@@ -27,7 +27,30 @@ class Controller
         $this->makeThese[] = array("TABLE", "dataViewPrescription");
 
     }
-    //public function ScheduleAppointment(){}
+    public function DefinePatient(){
+        $this->model->Attributes['NameToSearchFor'] = '';
+        $this->redirect('SearchFor');
+    }
+    public function SearchFor(){
+        if(isset($this->model->Attributes['PatientID'])){
+            $this->model->getPatientName();
+        }
+        $createTable = ($this->model->Attributes['NameToSearchFor'] != '');
+        $this->model->UseCase_SearchFor();
+        $this->makeThese[] = array("IB", "Name (% wildcard)","NameToSearchFor", $this->model->Attributes['NameToSearchFor']);
+        $this->makeThese[] = array('BTN', 'Submit','Submit', 'Search', 'SearchFor');
+        if($createTable==true ){
+            $this->showThis = 'Found accounts: <br/>&nbsp;<br/>';
+            array_unshift($this->model->dataSearchFor, array("Select","Name","Username","Address") );
+            $this->makeThese[] = array("RADIOTABLE", "dataSearchFor");
+        }else{
+            $this->showThis = 'Please enter name';
+        }
+        $this->makeThese[] = array('BTN', 'Submit','Button', 'Set Patient', '');
+    }
+    public function SetPatient(){
+
+    }
     public function CancelAppointment(){}
     public function ViewAppointments(){
 
@@ -42,7 +65,6 @@ class Controller
     public function ViewLabHistory(){}
     public function CreateSpecialistReferral(){}
     public function CreateEmergencyFirstContact(){}
-    public function DefinePatient(){}
     public function ScheduleLabTest(){}
 
     public function CheckCredentials(){
